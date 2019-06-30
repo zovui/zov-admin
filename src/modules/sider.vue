@@ -1,6 +1,4 @@
-<template>
-  $END$
-</template>
+<template> </template>
 
 <script>
 export default {

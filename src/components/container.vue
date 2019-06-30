@@ -1,17 +1,17 @@
 <template>
-  <div class="card-panel">
+  <div class="container">
     <slot></slot>
   </div>
 </template>
 
 <script>
 export default {
-  name: "cardPanel"
+  name: "container"
 };
 </script>
 
 <style lang="scss" scoped>
-.card-panel {
-  border: 1px solid #eee;
+.container {
+  border: 1px solid #e8e8e8;
 }
 </style>
