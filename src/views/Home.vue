@@ -87,9 +87,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.content-wrapper {
-  padding: 30px 40px;
-}
 .one-line-chart {
   display: flex;
   margin: 20px 0;
