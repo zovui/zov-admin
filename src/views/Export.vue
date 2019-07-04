@@ -13,7 +13,7 @@
     <Container>
       <div ref="table"></div>
       <input type="file" name="file" @change="handleUpload" />
-      <Button @click="handleTableDownload">下载excel</Button>
+      <Button @click="handleTableDownload(tableArray)">下载excel</Button>
     </Container>
   </div>
 </template>
@@ -33,37 +33,10 @@ export default {
       wb: "",
       rABS: false,
       tableArray: [
-        {
-          //测试数据
-          "保质期临期预警(天)": "adventLifecycle",
-          商品标题: "title",
-          建议零售价: "defaultPrice",
-          "高(cm)": "height",
-          商品描述: "Description",
-          "保质期禁售(天)": "lockupLifecycle",
-          商品名称: "skuName",
-          商品简介: "brief",
-          "宽(cm)": "width",
-          阿达: "asdz",
-          货号: "goodsNo",
-          商品条码: "skuNo",
-          商品品牌: "brand",
-          "净容积(cm^3)": "netVolume",
-          是否保质期管理: "isShelfLifeMgmt",
-          是否串号管理: "isSNMgmt",
-          商品颜色: "color",
-          尺码: "size",
-          是否批次管理: "isBatchMgmt",
-          商品编号: "skuCode",
-          商品简称: "shortName",
-          "毛重(g)": "grossWeight",
-          "长(cm)": "length",
-          英文名称: "englishName",
-          "净重(g)": "netWeight",
-          商品分类: "categoryId",
-          这里超过了: 1111.0,
-          "保质期(天)": "expDate"
-        }
+        [1, 2, 3],
+        [true, false, null, "sheetjs"],
+        ["foo", "bar", new Date("2014-02-19T14:30Z"), "0.3"],
+        ["baz", null, "qux"]
       ]
     };
   },
@@ -108,7 +81,19 @@ export default {
       });
       this.download(blob, "text");
     },
-    handleTableDownload() {},
+    handleTableDownload(data) {
+      let filename = "write.xlsx";
+      let ws_name = "SheetJS";
+
+      let wb = XLSX.utils.book_new();
+      let ws = XLSX.utils.aoa_to_sheet(data);
+
+      /* add worksheet to workbook */
+      XLSX.utils.book_append_sheet(wb, ws, ws_name);
+
+      /* write workbook */
+      XLSX.writeFile(wb, filename);
+    },
     handleUpload($event) {
       //导入
       if (!$event.target.files) {
@@ -119,7 +104,6 @@ export default {
 
       reader.onload = e => {
         let data = e.target.result;
-        console.log(data);
 
         if (this.rABS) {
           this.wb = XLSX.read(btoa(this.fixData(data)), {
@@ -131,6 +115,8 @@ export default {
             type: "binary"
           });
         }
+
+        console.log(this.wb);
         //wb.SheetNames[0]是获取Sheets中第一个Sheet的名字
         //wb.Sheets[Sheet名]获取第一个Sheet的数据
         this.$refs.table.innerHTML = JSON.stringify(
