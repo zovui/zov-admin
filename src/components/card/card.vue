@@ -25,7 +25,6 @@ export default {
 .card {
   position: relative;
   background-color: #f4f4f4;
-  min-width: 150px;
   color: #333;
   &-name {
     position: absolute;

@@ -6,6 +6,7 @@
 import chartTheme from "./chartTheme";
 export default {
   name: "Chart",
+  inject: ["getCollapseContainer"],
   props: {
     option: Object
   },
@@ -27,7 +28,9 @@ export default {
   },
   methods: {
     handleResize() {
-      this.chart.resize();
+      this.$nextTick(() => {
+        this.chart.resize();
+      });
     },
     setOption() {
       if (this.option && this.chart) {
@@ -64,6 +67,9 @@ export default {
       this.setOption();
       window.addEventListener("resize", this.handleResize);
     });
+  },
+  mounted() {
+    this.getCollapseContainer(this);
   },
   beforeDestroy() {
     window.removeEventListener("resize", this.handleResize);
