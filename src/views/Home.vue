@@ -95,6 +95,7 @@ export default {
   flex: 1;
   height: 400px;
   margin: 0 10px;
+  min-width: 1px;
   &:first-of-type {
     margin-left: 0;
   }

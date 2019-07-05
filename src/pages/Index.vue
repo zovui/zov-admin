@@ -6,10 +6,7 @@
         >aaaaaaaaaaa</template
       >
       <template slot="right">
-        <Icon
-          class="header-right-contain header-expand"
-          iconname="expand"
-        ></Icon>
+        <FullScreen class="header-right-contain"></FullScreen>
         <span class="header-right-contain header-user">user</span>
         <Icon
           class="header-right-contain header-logout"
@@ -17,8 +14,18 @@
         ></Icon>
       </template>
     </Header>
-    <Sider></Sider>
-    <div class="content">
+    <Sider
+      class="sider-container"
+      :style="siderStyle"
+      @on-collapse="handleCollapse"
+    ></Sider>
+    <div class="content" :style="contentStyle">
+      <CollapseButton
+        v-show="collapse"
+        class="sider-show"
+        toward="forward"
+        @on-click="handleCollapse"
+      />
       <router-view />
     </div>
   </div>
@@ -27,12 +34,53 @@
 <script>
 import Header from "@modules/header.vue";
 import Sider from "@modules/sider.vue";
+import CollapseButton from "@components/collapseButton.vue";
+import FullScreen from "@components/fullScreen.vue";
 
 export default {
   name: "Index",
+  provide() {
+    return {
+      getCollapseContainer: this.getCollapseContainer.bind(this)
+    };
+  },
+  data() {
+    return {
+      collapse: false,
+      collapseContainer: []
+    };
+  },
+  computed: {
+    siderStyle() {
+      return {
+        width: this.collapse ? 0 : "240px"
+      };
+    },
+    contentStyle() {
+      return {
+        left: this.collapse ? 0 : "240px"
+      };
+    }
+  },
   components: {
     Header,
-    Sider
+    Sider,
+    CollapseButton,
+    FullScreen
+  },
+  methods: {
+    handleCollapse() {
+      this.collapse = !this.collapse;
+      this.changeViewSize();
+    },
+    getCollapseContainer($element) {
+      this.collapseContainer.push($element);
+    },
+    changeViewSize() {
+      this.collapseContainer.forEach($element => {
+        $element.handleResize();
+      });
+    }
   }
 };
 </script>
@@ -53,11 +101,11 @@ export default {
   margin-left: 20px;
   vertical-align: middle;
 }
-.header-expand {
-  font-size: 18px;
-}
 .header-logout {
   font-size: 18px;
+}
+.sider-container {
+  position: absolute;
 }
 .content {
   position: absolute;
@@ -66,5 +114,10 @@ export default {
   bottom: 0;
   right: 0;
   overflow: auto;
+}
+.sider-show {
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
 }
 </style>
