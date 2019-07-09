@@ -3,7 +3,10 @@ import Router from "vue-router";
 import Login from "./pages/Login.vue";
 import Index from "./pages/Index.vue";
 import Home from "./views/Home.vue";
-import Export from "./views/Export.vue";
+import ExportCanvas from "./views/Export/ExportCanvas.vue";
+import ExportText from "./views/Export/ExportText.vue";
+import ExportTable from "./views/Export/ExportTable.vue";
+import ImportTable from "./views/Export/ImportTable.vue";
 
 Vue.use(Router);
 
@@ -25,12 +28,28 @@ export default new Router({
       children: [
         {
           path: "/home",
-          component: Home,
-          name: "home"
+          name: "home",
+          component: Home
         },
         {
-          path: "/export",
-          component: Export
+          path: "/exportCanvas",
+          name: "exportCanvas",
+          component: ExportCanvas
+        },
+        {
+          path: "/exportText",
+          name: "exportText",
+          component: ExportText
+        },
+        {
+          path: "/exportTable",
+          name: "exportTable",
+          component: ExportTable
+        },
+        {
+          path: "/importTable",
+          name: "importTable",
+          component: ImportTable
         }
       ]
     }

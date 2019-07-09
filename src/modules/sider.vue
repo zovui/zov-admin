@@ -45,7 +45,25 @@ export default {
         },
         {
           name: "export",
-          title: "导出"
+          title: "导出",
+          children: [
+            {
+              name: "exportCanvas",
+              title: "导出图片"
+            },
+            {
+              name: "exportText",
+              title: "导出txt"
+            },
+            {
+              name: "exportTable",
+              title: "导出table"
+            },
+            {
+              name: "importTable",
+              title: "导入table"
+            }
+          ]
         }
       ]
     };
@@ -144,8 +162,7 @@ export default {
     change(name) {
       this.$router.push("/" + name);
     }
-  },
-  mounted() {}
+  }
 };
 </script>
 
