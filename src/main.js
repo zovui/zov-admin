@@ -11,6 +11,9 @@ import "zov/lib/zov.min.css";
 
 Vue.config.productionTip = false;
 
+/* eslint-disable */
+if (process.env.NODE_ENV !== "production") require("@mock");
+
 new Vue({
   router,
   store,

@@ -1,76 +1,25 @@
-<!--<template>-->
-<!--<div class="sider">-->
-<!--<Menu-->
-<!--:active-name="activeName"-->
-<!--:open-names="['2', '3']"-->
-<!--@on-change="change"-->
-<!--&gt;-->
-<!--<MenuOption name="1">-->
-<!--<Icon iconname="home" />-->
-<!--首页-->
-<!--</MenuOption>-->
-<!--<MenuSub name="4">-->
-<!--<MenuOption name="4-1" />-->
-<!--<MenuOption name="4-2" />-->
-<!--<MenuSub name="4-3">-->
-<!--<MenuOption name="4-3-1" />-->
-<!--<MenuOption name="4-3-2" />-->
-<!--<MenuSub name="4-3-3">-->
-<!--<MenuOption name="4-3-3-1" />-->
-<!--<MenuOption name="4-3-3-2" />-->
-<!--</MenuSub>-->
-<!--</MenuSub>-->
-<!--<MenuSub name="4-4">-->
-<!--<MenuOption name="4-4-1" />-->
-<!--<MenuOption name="4-4-2" />-->
-<!--</MenuSub>-->
-<!--</MenuSub>-->
-<!--</Menu>-->
-<!--<CollapseButton class="sider-collapse" toward="back" @on-click="handleCollapse" />-->
-<!--</div>-->
-<!--</template>-->
-
 <script>
 import CollapseButton from "@components/collapseButton.vue";
+import { mapGetters } from "vuex";
+
+import normalizeTree from "@libs/normalizeTree";
 
 export default {
   name: "sider",
   data() {
     return {
       activeName: "",
-      navList: [
-        {
-          name: "home",
-          title: "首页"
-        },
-        {
-          name: "export",
-          title: "导出",
-          children: [
-            {
-              name: "exportCanvas",
-              title: "导出图片"
-            },
-            {
-              name: "exportText",
-              title: "导出txt"
-            },
-            {
-              name: "exportTable",
-              title: "导出table"
-            },
-            {
-              name: "importTable",
-              title: "导入table"
-            }
-          ]
-        }
-      ]
+      menuItemList: []
     };
   },
   render(h) {
     let renderSubTree = list => {
+      if (!(list && list.length)) {
+        return [];
+      }
+
       let listDom = [];
+
       for (let item of list) {
         if (item.children && item.children.length) {
           listDom.push(
@@ -78,11 +27,10 @@ export default {
               "MenuSub",
               {
                 props: {
-                  name: item.name
+                  name: item.data.name
                 },
-                class: "second-menu",
                 scopedSlots: {
-                  title: () => h("span", {}, [item.title])
+                  title: () => h("span", {}, [item.data.title])
                 }
               },
               renderSubTree(item.children)
@@ -94,18 +42,10 @@ export default {
               "MenuOption",
               {
                 props: {
-                  name: item.name
+                  name: item.data.name
                 }
               },
-              [
-                h(
-                  "span",
-                  {
-                    // 'class': 'leaf-menu'
-                  },
-                  item.title
-                )
-              ]
+              [h("span", {}, item.data.title)]
             )
           );
         }
@@ -114,35 +54,38 @@ export default {
       return listDom;
     };
 
-    return h(
-      "div",
-      {
-        class: "sider"
-      },
-      [
-        h(
-          "Menu",
+    return this.userMenuNodeTree.length && this.openedMenu.length
+      ? h(
+          "div",
           {
-            props: {
-              "active-name": this.activeName
-            },
-            on: {
-              "on-change": this.change
-            }
+            class: "sider"
           },
-          renderSubTree(this.navList)
-        ),
-        h("CollapseButton", {
-          class: "sider-collapse",
-          props: {
-            toward: "back"
-          },
-          on: {
-            "on-click": this.handleCollapse
-          }
-        })
-      ]
-    );
+          [
+            h(
+              "Menu",
+              {
+                props: {
+                  "active-name": this.activeName,
+                  "open-names": this.openedMenu
+                },
+                on: {
+                  "on-change": this.change
+                }
+              },
+              renderSubTree(this.userMenuNodeTree)
+            ),
+            h("CollapseButton", {
+              class: "sider-collapse",
+              props: {
+                toward: "back"
+              },
+              on: {
+                "on-click": this.handleCollapse
+              }
+            })
+          ]
+        )
+      : "";
   },
   components: {
     CollapseButton
@@ -153,6 +96,42 @@ export default {
       handler(route) {
         this.activeName = route.name;
       }
+    },
+    userMenuNodeTree() {
+      this.compileMenuList();
+    }
+  },
+  computed: {
+    ...mapGetters(["getUserMenu"]),
+    userMenuNodeTree() {
+      let _userMenu = this.getUserMenu;
+      let menu = [];
+      if (_userMenu && _userMenu.length) {
+        for (let i = 0, len = _userMenu.length; i < len; i++) {
+          menu.push(
+            normalizeTree(_userMenu[i], null, node => node, () => false)
+          );
+        }
+      }
+
+      return menu;
+    },
+    openedMenu() {
+      let _menuItemList = this.menuItemList;
+      if (_menuItemList && _menuItemList.length) {
+        for (let i = 0, len = _menuItemList.length; i < len; i++) {
+          if (_menuItemList[i].data.name === this.activeName) {
+            _menuItemList[i].selected = true;
+            break;
+          }
+        }
+
+        return this.menuItemList
+          .filter(item => item.opened)
+          .map(item => item.data.name);
+      } else {
+        return [];
+      }
     }
   },
   methods: {
@@ -161,6 +140,25 @@ export default {
     },
     change(name) {
       this.$router.push("/" + name);
+    },
+    compileMenuList() {
+      let _userMenuNodeTree = this.userMenuNodeTree;
+      const menuItemList = [];
+
+      function flattenChildren(node) {
+        menuItemList.push(node);
+        if (node.children && node.children.length) {
+          node.children.forEach(node => flattenChildren(node));
+        }
+      }
+
+      if (_userMenuNodeTree && _userMenuNodeTree.length) {
+        _userMenuNodeTree.forEach(rootNode => {
+          flattenChildren(rootNode);
+        });
+      }
+
+      this.menuItemList = menuItemList;
     }
   }
 };

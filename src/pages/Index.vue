@@ -37,6 +37,8 @@ import Sider from "@modules/sider.vue";
 import CollapseButton from "@components/collapseButton.vue";
 import FullScreen from "@components/fullScreen.vue";
 
+import { mapActions } from "vuex";
+
 export default {
   name: "Index",
   provide() {
@@ -69,6 +71,7 @@ export default {
     FullScreen
   },
   methods: {
+    ...mapActions(["updateUserMenu"]),
     handleCollapse() {
       this.collapse = !this.collapse;
       this.changeViewSize();
@@ -81,6 +84,9 @@ export default {
         $element.handleResize();
       });
     }
+  },
+  mounted() {
+    this.updateUserMenu();
   }
 };
 </script>

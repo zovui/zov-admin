@@ -16,6 +16,7 @@ module.exports = {
       .set("@modules", resolve("src/modules"))
       .set("@pages", resolve("src/pages"))
       .set("@plugins", resolve("src/plugins"))
-      .set("@views", resolve("src/views"));
+      .set("@views", resolve("src/views"))
+      .set("@config", resolve("src/config"));
   }
 };
